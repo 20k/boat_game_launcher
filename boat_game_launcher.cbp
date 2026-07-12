@@ -7,13 +7,13 @@
 		<Option compiler="gcc-msys2-mingw64" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/boat_game_launcher" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/LettersOfMarqueLauncher" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc-msys2-mingw64" />
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/boat_game_launcher" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Release/LettersOfMarqueLauncher" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc-msys2-mingw64" />
@@ -34,6 +34,9 @@
 			<Add option="-g" />
 		</Compiler>
 		<Linker>
+			<Add option="-static-libstdc++" />
+			<Add option="-static-libgcc" />
+			<Add option="-static" />
 			<Add option="-l:libsdl3.a" />
 			<Add option="-lWinmm" />
 			<Add option="-lOle32" />
@@ -42,7 +45,6 @@
 			<Add option="-lImm32" />
 			<Add option="-lVersion" />
 			<Add option="-lOleAut32" />
-			<Add option="-lSetupapi" />
 			<Add option="-luuid" />
 		</Linker>
 		<Unit filename="main.cpp" />

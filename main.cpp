@@ -8,6 +8,7 @@
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <sstream>
+#include <processthreadsapi.h>
 
 struct cfg
 {
@@ -65,9 +66,18 @@ int main()
     if(sval.contains("intel"))
         vendor = "intel";
 
-    auto launch_with = [](const std::string& params)
+    auto launch_with = [](std::string params)
     {
         std::cout << "Launching " << params << std::endl;
+
+        STARTUPINFO si;
+        PROCESS_INFORMATION pi;
+
+        ZeroMemory( &si, sizeof(si) );
+        si.cb = sizeof(si);
+        ZeroMemory( &pi, sizeof(pi) );
+
+        assert(CreateProcessA("./LettersOfMarque.exe", params.data(), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi));
     };
 
     auto contains_pattern = [](const std::string& who, const std::string& pattern)
@@ -81,7 +91,7 @@ int main()
         {
             bool all_match = true;
 
-            for(int j=0; j < pattern.size(); j++)
+            for(int j=0; j < (int)pattern.size(); j++)
             {
                 int cidx = i + j;
 
