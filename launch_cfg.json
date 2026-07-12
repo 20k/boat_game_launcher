@@ -12,6 +12,6 @@
 {
     "vendor":"intel",
     "patterns":[],
-    "option":"--rendering-driver vulkan --myarg=nosdfgi"
+    "option":"--rendering-driver vulkan -- --myarg=nosdfgi"
 }
 ]
