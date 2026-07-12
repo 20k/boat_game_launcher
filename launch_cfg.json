@@ -1,0 +1,17 @@
+[
+{
+    "vendor":"nvidia",
+    "patterns":["5???", "6???"],
+    "option":"--rendering-driver vulkan"
+},
+{
+    "vendor":"amd",
+    "patterns":["5??", "6700"],
+    "option":"--rendering-driver vulkan"
+},
+{
+    "vendor":"intel",
+    "patterns":[],
+    "option":"--rendering-driver vulkan --myarg=nosdfgi"
+}
+]

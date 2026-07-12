@@ -5,6 +5,31 @@
 #include <SDL3/SDL.h>
 #include <iostream>
 #include <assert.h>
+#include <nlohmann/json.hpp>
+#include <fstream>
+#include <sstream>
+
+struct cfg
+{
+    std::string vendor;
+    std::vector<std::string> patterns;
+    std::string option;
+
+    void read(nlohmann::json& js)
+    {
+        vendor = js["vendor"];
+        patterns = js["patterns"];
+        option = js["option"];
+    }
+};
+
+std::string read_file(const std::string& name)
+{
+    std::ifstream ifs(name);
+    std::ostringstream oss;
+    oss << ifs.rdbuf();
+    return oss.str();
+}
 
 int main()
 {
@@ -42,7 +67,7 @@ int main()
 
     auto launch_with = [](const std::string& params)
     {
-
+        std::cout << "Launching " << params << std::endl;
     };
 
     auto contains_pattern = [](const std::string& who, const std::string& pattern)
@@ -114,31 +139,34 @@ int main()
         assert(!contains_pattern(test, p4));
     }
 
-    if(vendor == "intel")
-    {
-        launch_with("--rendering-driver vulkan --myarg=nosdfgi");
-    }
-    else if(vendor == "nvidia")
-    {
-        //whole 5xxx series confirmed affected. Unsure about 4xxx, probably will affect 6xxx
-        std::vector<std::string> patt = {"5???", "6???"};
+    std::vector<nlohmann::json> data = nlohmann::json::parse(read_file("./launch_cfg.json"));
 
-        if(any_pattern(sval, patt))
-            launch_with("--rendering-driver vulkan");
-        else
-            launch_with("");
+    std::vector<cfg> cfgs;
 
-    }
-    else if(vendor == "amd")
+    for(auto& i : data)
     {
-        //580 confirmed affected
-        std::vector<std::string> patt = {"5??"};
-
-         if(any_pattern(sval, patt))
-            launch_with("--rendering-driver vulkan");
-         else
-            launch_with("");
+        cfg& c = cfgs.emplace_back();
+        c.read(i);
     }
+
+    for(const cfg& c : cfgs)
+    {
+        if(vendor == c.vendor)
+        {
+            if(c.patterns.size() == 0)
+            {
+                launch_with(c.option);
+                return 0;
+            }
+            else if(any_pattern(sval, c.patterns))
+            {
+                launch_with(c.option);
+                return 0;
+            }
+        }
+    }
+
+    launch_with("");
 
     return 0;
 }
