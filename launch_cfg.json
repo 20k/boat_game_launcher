@@ -1,7 +1,7 @@
 [
 {
     "vendor":"nvidia",
-    "patterns":["5???", "6???"],
+    "patterns":["5???", "6???", "16??"],
     "option":"--rendering-driver vulkan"
 },
 {
