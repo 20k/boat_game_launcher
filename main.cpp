@@ -68,6 +68,8 @@ int main()
 
     auto launch_with = [](std::string params)
     {
+        params = "--disable-crash-handler " + params;
+
         std::cout << "Launching " << params << std::endl;
 
         STARTUPINFO si;
