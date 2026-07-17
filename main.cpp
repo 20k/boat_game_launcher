@@ -34,6 +34,9 @@ std::string read_file(const std::string& name)
 
 int main()
 {
+    std::ofstream* crash = new std::ofstream("launcher_log.txt");
+    std::cout.rdbuf(crash->rdbuf());
+
     // Init SDL
     SDL_Init(SDL_INIT_VIDEO);
 
