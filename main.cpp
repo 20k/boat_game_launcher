@@ -90,15 +90,19 @@ int main()
         if(pattern.size() > who.size())
             return false;
 
-        int fin = (int)who.size() - (int)pattern.size();
-
-        for(int i=0; i < fin; i++)
+        for(int i=0; i < (int)who.size(); i++)
         {
             bool all_match = true;
 
             for(int j=0; j < (int)pattern.size(); j++)
             {
                 int cidx = i + j;
+
+                if(cidx >= (int)who.size())
+                {
+                    all_match = false;
+                    break;
+                }
 
                 if(pattern[j] == '?')
                 {
@@ -120,10 +124,10 @@ int main()
 
             if(all_match)
             {
-                if(i == fin - 1)
+                if(i + (int)pattern.size() >= (int)who.size())
                     return true;
                 else
-                    return !std::isdigit(who[i + pattern.size()]);
+                    return !std::isdigit(who.at(i + pattern.size()));
             }
         }
 
@@ -140,6 +144,15 @@ int main()
 
         return false;
     };
+
+    {
+        std::string test = "1650";
+        std::string test2 = "NVIDIA GeForce GTX 1650";
+
+        assert(contains_pattern(test, "16??"));
+        assert(contains_pattern(test2, "16??"));
+        assert(!contains_pattern(test, "16?"));
+    }
 
     {
         std::string test = "AMD Radeon RX 6700 XT";
