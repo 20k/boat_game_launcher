@@ -254,7 +254,7 @@ void task_crashdump()
     snd.write_to_websocket(std::move(dat));
     conn->send_bulk(std::move(snd));
 
-    delete conn;
+    conn->terminate();
 }
 
 int main(int argc, char* argv[])
