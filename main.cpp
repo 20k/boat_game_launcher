@@ -225,15 +225,14 @@ void task_launch()
     launch_with("");
 }
 
-void task_crashdump()
+void task_crashdump(bool local)
 {
     network_client* conn = start_network_client();
 
-    #ifndef LOCAL
-    conn->connect(85568392937018816ULL, 1284, "lettersofmarque.xyz", false);
-    #else
-    conn->connect(0, 1285, "127.0.0.1", true);
-    #endif
+    if(!local)
+        conn->connect(85568392937018816ULL, 1284, "lettersofmarque.xyz", false);
+    else
+        conn->connect(0, 1285, "127.0.0.1", true);
 
     while(conn->connection_in_progress()){}
 
@@ -263,6 +262,7 @@ int main(int argc, char* argv[])
     std::cout.rdbuf(crash->rdbuf());
 
     bool crashdump = false;
+    bool local = false;
 
     for(int i=0; i < argc; i++)
     {
@@ -271,11 +271,18 @@ int main(int argc, char* argv[])
         if(strcmp(str, "-crashdump") == 0)
         {
             crashdump = true;
-            break;
+        }
+
+        if(strcmp(str, "-local") == 0)
+        {
+            local = true;
         }
     }
 
-    #define CRASHDUMP
+    #ifdef LOCAL
+    //#define CRASHDUMP
+    local = true;
+    #endif
     #ifdef CRASHDUMP
     crashdump = true;
     #endif // CRASHDUMP
@@ -283,7 +290,7 @@ int main(int argc, char* argv[])
     if(!crashdump)
         task_launch();
     else
-        task_crashdump();
+        task_crashdump(local);
 
     return 0;
 }
