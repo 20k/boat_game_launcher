@@ -9,6 +9,37 @@
 #include <fstream>
 #include <sstream>
 #include <processthreadsapi.h>
+#include <networking/networking_compat.hpp>
+#include <stdlib.h>
+#include <stdio.h>
+
+std::string read(const std::string& file)
+{
+    FILE* f = fopen(file.c_str(), "r");
+
+    if(f == nullptr)
+        return "";
+
+    fseek(f, 0, SEEK_END);
+    long fsize = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    if(fsize == -1L)
+    {
+        fclose(f);
+        return "";
+    }
+
+    std::string buffer;
+    buffer.resize(fsize);
+    size_t real = fread(buffer.data(), 1, fsize, f);
+    buffer.resize(real);
+
+    fclose(f);
+
+    return buffer;
+}
+
 
 struct cfg
 {
@@ -32,11 +63,8 @@ std::string read_file(const std::string& name)
     return oss.str();
 }
 
-int main()
+void task_launch()
 {
-    std::ofstream* crash = new std::ofstream("launcher_log.txt");
-    std::cout.rdbuf(crash->rdbuf());
-
     // Init SDL
     SDL_Init(SDL_INIT_VIDEO);
 
@@ -184,17 +212,78 @@ int main()
             if(c.patterns.size() == 0)
             {
                 launch_with(c.option);
-                return 0;
+                return;
             }
             else if(any_pattern(sval, c.patterns))
             {
                 launch_with(c.option);
-                return 0;
+                return;
             }
         }
     }
 
     launch_with("");
+}
+
+void task_crashdump()
+{
+    network_client* conn = start_network_client();
+
+    #ifndef LOCAL
+    conn->connect(85568392937018816ULL, 1284, "lettersofmarque.xyz", false);
+    #else
+    conn->connect(0, 1285, "127.0.0.1", true);
+    #endif
+
+    while(conn->connection_in_progress()){}
+
+    if(!conn->client_connected_to_server())
+        return;
+
+    nlohmann::json js;
+    js["command"] = "crash_dump";
+    js["data_crash"] = read("crash.txt");
+    js["data_crash_exception"] = read("crash_exception.txt");
+
+    connection_send_data snd;
+
+    write_data dat;
+    dat.id = -1;
+    dat.data = js.dump();
+
+    snd.write_to_websocket(std::move(dat));
+    conn->send_bulk(std::move(snd));
+
+    delete conn;
+}
+
+int main(int argc, char* argv[])
+{
+    std::ofstream* crash = new std::ofstream("launcher_log.txt");
+    std::cout.rdbuf(crash->rdbuf());
+
+    bool crashdump = false;
+
+    for(int i=0; i < argc; i++)
+    {
+        char* str = argv[i];
+
+        if(strcmp(str, "-crashdump") == 0)
+        {
+            crashdump = true;
+            break;
+        }
+    }
+
+    #define CRASHDUMP
+    #ifdef CRASHDUMP
+    crashdump = true;
+    #endif // CRASHDUMP
+
+    if(!crashdump)
+        task_launch();
+    else
+        task_crashdump();
 
     return 0;
 }

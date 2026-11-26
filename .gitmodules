@@ -1,0 +1,3 @@
+[submodule "deps/networking"]
+	path = deps/networking
+	url = git@github.com:20k/networking.git

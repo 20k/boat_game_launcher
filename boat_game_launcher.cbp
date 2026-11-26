@@ -24,6 +24,34 @@
 					<Add option="-O3" />
 				</Linker>
 			</Target>
+			<Target title="ReleaseLocal">
+				<Option output="bin/ReleaseLocal/LettersOfMarqueLauncher" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/ReleaseLocal/" />
+				<Option type="0" />
+				<Option compiler="gcc-msys2-mingw64" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-DLOCAL" />
+					<Add option="-DNO_STEAM_SOCKETS" />
+				</Compiler>
+				<Linker>
+					<Add option="-O3" />
+					<Add library="deps/GameNetworkingSockets/build/src/libGameNetworkingSockets.dll.a" />
+				</Linker>
+			</Target>
+			<Target title="DebugLocal">
+				<Option output="bin/DebugLocal/LettersOfMarqueLauncher" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/DebugLocal/" />
+				<Option type="0" />
+				<Option compiler="gcc-msys2-mingw64" />
+				<Compiler>
+					<Add option="-DLOCAL" />
+					<Add option="-DNO_STEAM_SOCKETS" />
+				</Compiler>
+				<Linker>
+					<Add library="deps/GameNetworkingSockets/build/src/libGameNetworkingSockets.dll.a" />
+				</Linker>
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-pedantic" />
@@ -32,6 +60,9 @@
 			<Add option="-std=c++26" />
 			<Add option="-Og" />
 			<Add option="-g" />
+			<Add directory="deps" />
+			<Add directory="deps/steamworks_sdk_163/sdk/public" />
+			<Add directory="deps/GameNetworkingSockets/include/steam" />
 		</Compiler>
 		<Linker>
 			<Add option="-static-libstdc++" />
@@ -46,7 +77,13 @@
 			<Add option="-lVersion" />
 			<Add option="-lOleAut32" />
 			<Add option="-luuid" />
+			<Add option="-liconv" />
+			<Add option="-l:libz.a" />
+			<Add library="deps/steamworks_sdk_163/sdk/redistributable_bin/win64/libsteam_api64.a" />
 		</Linker>
+		<Unit filename="deps/networking/networking_compat.hpp" />
+		<Unit filename="deps/networking/networking_steam.cpp" />
+		<Unit filename="deps/networking/networking_steam.hpp" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
