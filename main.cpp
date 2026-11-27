@@ -225,9 +225,11 @@ void task_launch()
     launch_with("");
 }
 
-void task_crashdump(bool local)
+void task_crashdump(bool local, bool by_exception)
 {
     network_client* conn = start_network_client();
+
+    printf("Crash dumping\n");
 
     if(!local)
         conn->connect(85568392937018816ULL, 1284, "lettersofmarque.xyz", false);
@@ -236,13 +238,21 @@ void task_crashdump(bool local)
 
     while(conn->connection_in_progress()){}
 
+    printf("Post spin\n");
+
     if(!conn->client_connected_to_server())
         return;
+
+    printf("Connected\n");
 
     nlohmann::json js;
     js["command"] = "crash_dump";
     js["data_crash"] = read("crash.txt");
-    js["data_crash_exception"] = read("crash_exception.txt");
+
+    if(by_exception)
+        js["data_crash_exception"] = read("crash_exception.txt");
+    else
+        js["data_crash_exception"] = "";
 
     connection_send_data snd;
 
@@ -253,7 +263,11 @@ void task_crashdump(bool local)
     snd.write_to_websocket(std::move(dat));
     conn->send_bulk(std::move(snd));
 
+    printf("Sending\n");
+
     conn->terminate();
+
+    printf("Terminated Crash Dumper\n");
 }
 
 int main(int argc, char* argv[])
@@ -263,20 +277,20 @@ int main(int argc, char* argv[])
 
     bool crashdump = false;
     bool local = false;
+    bool by_exception = false;
 
     for(int i=0; i < argc; i++)
     {
         char* str = argv[i];
 
         if(strcmp(str, "-crashdump") == 0)
-        {
             crashdump = true;
-        }
 
         if(strcmp(str, "-local") == 0)
-        {
             local = true;
-        }
+
+        if(strcmp(str, "-exception") == 0)
+            by_exception = true;
     }
 
     #ifdef LOCAL
@@ -290,7 +304,7 @@ int main(int argc, char* argv[])
     if(!crashdump)
         task_launch();
     else
-        task_crashdump(local);
+        task_crashdump(local, by_exception);
 
     return 0;
 }
