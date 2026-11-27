@@ -1,12 +1,12 @@
 [
 {
     "vendor":"nvidia",
-    "patterns":["5???", "6???", "16??"],
+    "patterns":["5???", "6???", "16??", "3???"],
     "option":"--rendering-driver vulkan"
 },
 {
     "vendor":"amd",
-    "patterns":["5??", "6700"],
+    "patterns":["5??", "6???"],
     "option":"--rendering-driver vulkan"
 },
 {
